@@ -60,14 +60,18 @@ html, body, .container {
 	position: relative;
 	margin: 1em auto 10px auto;
 	text-align: center;
-	min-width: 640px;
-	min-height: 480px;
-	max-width: 95%;
+	//min-width: 640px;
+	//min-height: 480px;
+	//max-width: 95%;
 	display: block;
 	align-items: center;
 	position: relative;
 	text-align: center;
 	justify-content: center;
+}
+#mainarea {
+	width:1573px;
+	height:780px;
 }
 
  .emscripten {
@@ -349,12 +353,40 @@ function postRunEmscripten() {
 	$("#canvas").show();
 
 	// stretch (i.e. resize) canvas to browser's actual viewable size
-	window.addEventListener('resize', resize_game, false);
+	/*window.addEventListener('resize', resize_game, false);
 	window.addEventListener('orientationchange', resize_game, false);
-	window.dispatchEvent(new Event('resize'));
+	window.dispatchEvent(new Event('resize'));*/
 
 	// the following is needed if game is within an iframe - main window already has focus...
 	window.focus();
+}
+
+function resize_game() {
+	// this will "stretch" the canvas.
+	// if you DO NO want auto resizing, disable addEventListener(resize_game) calls in postRunEmscripten() above
+
+	// jic it is not obvious, this does not (re)set the game's webGL resolution.
+	// (to do that, see comments at the top of preInitEmscripten() for details)
+
+	var iWidth = window.innerWidth;
+	var iHeight = window.innerHeight;
+	var iRatio = iWidth / iHeight;
+
+	var width = UE_JSlib.UE_GSystemResolution_ResX();
+	var height = UE_JSlib.UE_GSystemResolution_ResY();
+	var ratio = width / height;
+
+	var diff = 0.95; // see css <style> .wrapper max-width
+
+	if ( iRatio > ratio) {
+		// window width is too wide relative to desired game width
+		var d = ( iHeight * ratio ) / iWidth;
+		if ( d < diff )
+			diff = d;
+	}
+
+	// NOTE that this is the <div> -- not the <canvas>
+	$("#mainarea").css("max-width", parseInt(diff * 100) + "%");
 }
 
 // create a deffered object for the data file.
@@ -484,6 +516,7 @@ $(document).ready(function() {
 });
 
 </script>
+
 <div style="text-align:center">
 <h3>Webgl 2Dtech alpha</h3>
 <a target="_blank" href="http://www.twitter.com/bonedHg">&gt; Follow development &lt;</a>
