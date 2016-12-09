@@ -347,7 +347,8 @@ function postRunEmscripten() {
 	$("#compilingmessage").remove();
 	// it still takes couple of ticks after run before anything can be drawn. show the canvas at the last possible moment.
 	$("#canvas").show();
-
+	window.addEventListener('resize', resize_game, false);
+	window.addEventListener('orientationchange', resize_game, false);
 	window.dispatchEvent(new Event('resize'));
 
 	// the following is needed if game is within an iframe - main window already has focus...
