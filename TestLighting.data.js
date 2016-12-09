@@ -184,6 +184,6 @@ Module['FS_createPath']('/TestLighting/Content', 'Paks', true, true);
   }
 
  }
- loadPackage({"files": [{"audio": 0, "start": 0, "crunched": 0, "end": 106, "filename": "/Manifest_NonUFSFiles_HTML5.txt"}, {"audio": 0, "start": 106, "crunched": 0, "end": 150, "filename": "/UE4CommandLine.txt"}, {"audio": 0, "start": 150, "crunched": 0, "end": 348, "filename": "/Engine/Build/Build.version"}, {"audio": 0, "start": 348, "crunched": 0, "end": 38827518, "filename": "/TestLighting/Content/Paks/TestLighting-HTML5.pak"}], "remote_package_size": 38827518, "package_uuid": "83255af8-ec0b-4f5c-8c55-aa98ae80d107"});
+ loadPackage({"files": [{"audio": 0, "start": 0, "crunched": 0, "end": 106, "filename": "/Manifest_NonUFSFiles_HTML5.txt"}, {"audio": 0, "start": 106, "crunched": 0, "end": 150, "filename": "/UE4CommandLine.txt"}, {"audio": 0, "start": 150, "crunched": 0, "end": 348, "filename": "/Engine/Build/Build.version"}, {"audio": 0, "start": 348, "crunched": 0, "end": 38827587, "filename": "/TestLighting/Content/Paks/TestLighting-HTML5.pak"}], "remote_package_size": 38827587, "package_uuid": "f6e9f101-998b-426d-8dde-c3709b2eb798"});
 
 })();
