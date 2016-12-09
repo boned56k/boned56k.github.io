@@ -60,8 +60,9 @@ html, body, .container {
 	position: relative;
 	margin: 1em auto 10px auto;
 	text-align: center;
-	width:1558px;
-	height:830px;
+	min-width: 640px;
+	min-height: 480px;
+	max-width: 95%;
 	display: block;
 	align-items: center;
 	position: relative;
@@ -322,8 +323,7 @@ function preInitEmscripten(){
 	// and is configurable via DefaultEngine.ini [SystemSettings] r.setRes=WidthxHeight
 	var width = UE_JSlib.UE_GSystemResolution_ResX();
 	var height = UE_JSlib.UE_GSystemResolution_ResY();
-	console.log(width+"");
-	console.log(height+"");
+
 	// add canvas but to the DOM -- but don't show it yet.
 	$ ('<canvas>').
 			attr({
@@ -347,28 +347,14 @@ function postRunEmscripten() {
 	$("#compilingmessage").remove();
 	// it still takes couple of ticks after run before anything can be drawn. show the canvas at the last possible moment.
 	$("#canvas").show();
+
+	// stretch (i.e. resize) canvas to browser's actual viewable size
 	window.addEventListener('resize', resize_game, false);
 	window.addEventListener('orientationchange', resize_game, false);
 	window.dispatchEvent(new Event('resize'));
 
 	// the following is needed if game is within an iframe - main window already has focus...
 	window.focus();
-}
-
-function resize_game() {
-	// this will "stretch" the canvas.
-	// if you DO NO want auto resizing, disable addEventListener(resize_game) calls in postRunEmscripten() above
-
-	// jic it is not obvious, this does not (re)set the game's webGL resolution.
-	// (to do that, see comments at the top of preInitEmscripten() for details)
-
-	var width = UE_JSlib.UE_GSystemResolution_ResX();
-	var height = UE_JSlib.UE_GSystemResolution_ResY();
-
-
-	// NOTE that this is the <div> -- not the <canvas>
-	$("#mainarea").css("width", width + "px");
-	$("#mainarea").css("width", height + "px");
 }
 
 // create a deffered object for the data file.
