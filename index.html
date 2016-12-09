@@ -60,9 +60,8 @@ html, body, .container {
 	position: relative;
 	margin: 1em auto 10px auto;
 	text-align: center;
-	min-width: 1280px;
-	min-height: 720px;
-	max-width: 95%;
+	width:1558px;
+	height:830px;
 	display: block;
 	align-items: center;
 	position: relative;
@@ -93,7 +92,7 @@ html, body, .container {
 	padding-right: 0;
 	margin-left: auto;
 	margin-right: auto;
-	width: 1280px;
+	width: 100%;
 }
 
 .texthalf {
@@ -323,7 +322,8 @@ function preInitEmscripten(){
 	// and is configurable via DefaultEngine.ini [SystemSettings] r.setRes=WidthxHeight
 	var width = UE_JSlib.UE_GSystemResolution_ResX();
 	var height = UE_JSlib.UE_GSystemResolution_ResY();
-
+	console.log(width+"");
+	console.log(height+"");
 	// add canvas but to the DOM -- but don't show it yet.
 	$ ('<canvas>').
 			attr({
@@ -348,9 +348,6 @@ function postRunEmscripten() {
 	// it still takes couple of ticks after run before anything can be drawn. show the canvas at the last possible moment.
 	$("#canvas").show();
 
-	// stretch (i.e. resize) canvas to browser's actual viewable size
-	window.addEventListener('resize', resize_game, false);
-	window.addEventListener('orientationchange', resize_game, false);
 	window.dispatchEvent(new Event('resize'));
 
 	// the following is needed if game is within an iframe - main window already has focus...
@@ -364,25 +361,13 @@ function resize_game() {
 	// jic it is not obvious, this does not (re)set the game's webGL resolution.
 	// (to do that, see comments at the top of preInitEmscripten() for details)
 
-	var iWidth = window.innerWidth;
-	var iHeight = window.innerHeight;
-	var iRatio = iWidth / iHeight;
-
 	var width = UE_JSlib.UE_GSystemResolution_ResX();
 	var height = UE_JSlib.UE_GSystemResolution_ResY();
-	var ratio = width / height;
 
-	var diff = 0.95; // see css <style> .wrapper max-width
-
-	if ( iRatio > ratio) {
-		// window width is too wide relative to desired game width
-		var d = ( iHeight * ratio ) / iWidth;
-		if ( d < diff )
-			diff = d;
-	}
 
 	// NOTE that this is the <div> -- not the <canvas>
-	$("#mainarea").css("max-width", parseInt(diff * 100) + "%");
+	$("#mainarea").css("width", width + "px");
+	$("#mainarea").css("width", height + "px");
 }
 
 // create a deffered object for the data file.
