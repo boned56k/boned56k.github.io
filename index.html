@@ -477,6 +477,7 @@ $(document).ready(function() {
 		$('#mainarea').hide();
 	}
 	$("#launchbutton").on("click",function() {
+		ga('send', 'event', 'Demo', 'play', 'GHPG');
 		$("#mainarea").show();
 		$("#launchbutton").hide();
 		addLog( "Starting downloads" );
