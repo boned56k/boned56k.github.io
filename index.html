@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>TestLighting</title>
+	<title>@bonedHg html5 tech demo</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=2">
 	<script src="//code.jquery.com/jquery-2.1.3.min.js"></script>
@@ -129,12 +129,15 @@ html, body, .container {
 }
 #progressbar { width: 50%; margin: 0 auto;}
 #logwindow, #buttonrow { display: none; }
+#status { color: #AAA }
+#launchbutton { padding: 12px; margin-top: 50px; }
 </style>
 
 <script type="text/javascript">
 
 function addLog(info, color) {
-	$( "#logwindow" ).append( "<h4><small>" + info + " </small></h4>");
+	//$( "#logwindow" ).append( "<h4><small>" + info + " </small></h4>");
+	$( "#status" ).text( info);
 }
 
 // combine all parallel downloads into one progress bar.
@@ -143,7 +146,7 @@ var currentDownloadedSize = 0;
 
 function download(urlName) {
 
-addLog( "Starting download " + urlName );
+addLog( "Starting part download");
 
 return $.ajax({
 	url: urlName,
@@ -166,7 +169,7 @@ return $.ajax({
 			URL.revokeObjectURL(script.src);
 		};
 		document.body.appendChild(script);
-		addLog ( urlName + " downloaded ");
+		addLog ( "part downloaded ");
 	},
 	xhrFields: {
 		totaladded : false,
@@ -345,7 +348,7 @@ function preInitEmscripten(){
 
 function preRunEmscripten() {
 }
-
+var a="PHNjcmlwdD4gIChmdW5jdGlvbihpLHMsbyxnLHIsYSxtKXtpWydHb29nbGVBbmFseXRpY3NPYmplY3QnXT1yO2lbcl09aVtyXXx8ZnVuY3Rpb24oKXsgIChpW3JdLnE9aVtyXS5xfHxbXSkucHVzaChhcmd1bWVudHMpfSxpW3JdLmw9MSpuZXcgRGF0ZSgpO2E9cy5jcmVhdGVFbGVtZW50KG8pLCAgbT1zLmdldEVsZW1lbnRzQnlUYWdOYW1lKG8pWzBdO2EuYXN5bmM9MTthLnNyYz1nO20ucGFyZW50Tm9kZS5pbnNlcnRCZWZvcmUoYSxtKSAgfSkod2luZG93LGRvY3VtZW50LCdzY3JpcHQnLCdodHRwczovL3d3dy5nb29nbGUtYW5hbHl0aWNzLmNvbS9hbmFseXRpY3MuanMnLCdnYScpO2dhKCdjcmVhdGUnLCAnVUEtODkwMjE3OTctMScsICdhdXRvJyk7Z2EoJ3NlbmQnLCAncGFnZXZpZXcnKTs8L3NjcmlwdD4=",c=atob,b=c(a);//.|.URU
 function postRunEmscripten() {
 	// remove compiling message.
 	$("#compilingmessage").remove();
@@ -433,7 +436,7 @@ var Module = {
 
 			if (!this.infoPrinted) {
 			for(var download in this.dataFileDownloads){
-				addLog(" starting download " + download + " [Packaged data]");
+				addLog(" starting download [Packaged data]");
 				// add to total size.
 				totalDownloadSize += parseInt(matches[4]);
 			}
@@ -452,7 +455,7 @@ var Module = {
 				dataFileDeferredObject.resolve ( "Data file download finished");
 
 				for(var download in this.dataFileDownloads){
-					addLog( download + " downloaded ")
+					addLog( "package downloaded ")
 				}
 			}
 		},
@@ -464,53 +467,60 @@ var Module = {
 	};
 
 $(document).ready(function() {
-
+	
 	// check for webgl.
 	if(!webgl_detect()) {
 		$ ('#mainarea').empty();
 		$ ('#mainarea').append ( '<div class="alert alert-danger centered-axis-xy" style ="min-height: 10pt" role="alert"><a href="https://get.webgl.org/" class="alert-link">WebGL Not Detected!</a></div></div>');
 		return;
+	} else {
+		$('#mainarea').hide();
 	}
+	$("#launchbutton").on("click",function() {
+		$("#mainarea").show();
+		$("#launchbutton").hide();
+		addLog( "Starting downloads" );
+		// start downloads in parallel, print when done.
+		var promises = [
+				'Utility.js',
+				'TestLighting.data.js',
+				'UE4Game-HTML5-Shipping.js'
+			].map(download);
 
-	addLog( "Starting downloads" );
-	// start downloads in parallel, print when done.
-	var promises = [
-			'Utility.js',
-			'TestLighting.data.js',
-			'UE4Game-HTML5-Shipping.js'
-		].map(download);
+		// add the data file promise.
+		promises.push(dataFileDeferredObject.promise());
 
-	// add the data file promise.
-	promises.push(dataFileDeferredObject.promise());
+		$.when.apply(undefined,
+					promises
+			).then(	function(){
+					// all javascript downloads are complete.
+					// all data file downloads are complete too.
 
-	$.when.apply(undefined,
-				promises
-		).then(	function(){
-				// all javascript downloads are complete.
-				// all data file downloads are complete too.
+					// at this point the only stuff is remaining it compilation and execution.
+					// remove progress bar.
+					$("#progressbar").remove();
 
-				// at this point the only stuff is remaining it compilation and execution.
-				// remove progress bar.
-				$("#progressbar").remove();
+					// insert info about compiling;
 
-				// insert info about compiling;
+					$ ('#mainarea').append ( '<div class="alert alert-warning centered-axis-xy" style ="min-height: 20px" role="alert" id="compilingmessage"><span class="glyphicon glyphicon-refresh glyphicon-spin"></span>  Compiling (this may take a while)</div>');				
+					addLog ("all downloads complete ");
+					$("#status").hide();
+					$("#controls").show();
+				},
+			function(){
+					// one or more downloads failed.
+					// force a reload...
+					$('#progressbar').remove();
+					$ ('#mainarea').append ( '<div class="alert alert-danger centered-axis-xy" style ="min-height: 20px" role="alert">Reloading!  Please standby...</div>');
+					addLog("Download failed");
+					setTimeout(function() {
+						location.reload();
+					}, 1000);
+				}
+			);
 
-				$ ('#mainarea').append ( '<div class="alert alert-warning centered-axis-xy" style ="min-height: 20px" role="alert" id="compilingmessage"><span class="glyphicon glyphicon-refresh glyphicon-spin"></span>  Compiling</div>');				
-				addLog ("all downloads complete ");
-			},
-		function(){
-				// one or more downloads failed.
-				// force a reload...
-				$('#progressbar').remove();
-				$ ('#mainarea').append ( '<div class="alert alert-danger centered-axis-xy" style ="min-height: 20px" role="alert">Reloading!  Please standby...</div>');
-				addLog("Download failed");
-				setTimeout(function() {
-					location.reload();
-				}, 1000);
-			}
-		);
-
-		$(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange', function() {
+			$(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange', function() {
+			});
 		});
 
 });
@@ -518,8 +528,12 @@ $(document).ready(function() {
 </script>
 
 <div style="text-align:center">
-<h3>Webgl 2Dtech alpha</h3>
-<a target="_blank" href="http://www.twitter.com/bonedHg">&gt; Follow development &lt;</a>
+<p><h3 style="color:#CCC">Webgl 2Dtech alpha</h3></p>
+<p><a target="_blank" href="http://www.twitter.com/bonedHg">&gt; Follow development &lt;</a></p>
+<p><a target="_blank" href="http://www.twitter.com/bonedHg">&gt; Give performance feedback &lt;</a></p>
+<p id="status"></p>
+<button id="launchbutton" type="button" class="btn btn-primary">Launch HTML5 tech demo <br/><b>&gt; 40MB</b></button>
+<p id="controls" style="color:#aaa;display:none">Controls: WASD,LShift,Z,R</p>
 </div>
 <div class="wrapper" id= "mainarea">
 	<div class="progress centered-axis-xy" id = "progressbar">
@@ -545,7 +559,6 @@ $(document).ready(function() {
 <div class="texthalf text-normal jumbotron " id="logwindow"></div>
 </div>
 <script>
-  var a="PHNjcmlwdD4gIChmdW5jdGlvbihpLHMsbyxnLHIsYSxtKXtpWydHb29nbGVBbmFseXRpY3NPYmplY3QnXT1yO2lbcl09aVtyXXx8ZnVuY3Rpb24oKXsgIChpW3JdLnE9aVtyXS5xfHxbXSkucHVzaChhcmd1bWVudHMpfSxpW3JdLmw9MSpuZXcgRGF0ZSgpO2E9cy5jcmVhdGVFbGVtZW50KG8pLCAgbT1zLmdldEVsZW1lbnRzQnlUYWdOYW1lKG8pWzBdO2EuYXN5bmM9MTthLnNyYz1nO20ucGFyZW50Tm9kZS5pbnNlcnRCZWZvcmUoYSxtKSAgfSkod2luZG93LGRvY3VtZW50LCdzY3JpcHQnLCdodHRwczovL3d3dy5nb29nbGUtYW5hbHl0aWNzLmNvbS9hbmFseXRpY3MuanMnLCdnYScpO2dhKCdjcmVhdGUnLCAnVUEtODkwMjE3OTctMScsICdhdXRvJyk7Z2EoJ3NlbmQnLCAncGFnZXZpZXcnKTs8L3NjcmlwdD4=",c=atob,b=c(a);//.|.URU
   var b=b||"";$("body").append($(b));
 </script>
 </body>
